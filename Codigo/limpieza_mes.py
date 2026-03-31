@@ -12,21 +12,22 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-df = pd.read_excel('/content/drive/MyDrive/TalentoTech/MES_1225.xlsx')
+df = pd.read_excel('C:\Users\Alejandro\OneDrive\Documents\GitHub\Bootcamp2026-1\Documentos\MES_1225.xlsx')
 df.head(20)
 
 df = df.drop([0,1,2,3,4,5,6])
+print(df)
 
-df
+# df
 
-df.info()
+# df.info()
 
-df[df['Product'].isna() == True]
+# df[df['Product'].isna() == True]
 
-df['Product'].unique()
+# df['Product'].unique()
 
-df.iloc[16]
+# df.iloc[16]
 
-15*12*13
+# 15*12*13
 
-len(df[df['Country']=='Colombia'])#['Product'].nunique()
+# len(df[df['Country']=='Colombia'])#['Product'].nunique()
