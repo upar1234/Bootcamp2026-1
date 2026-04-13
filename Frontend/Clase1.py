@@ -3,6 +3,7 @@ import pandas as pd
 import seaborn as sns
 import streamlit as st
 import matplotlib.pyplot as plt
+import altair as alt
 
 # Configuración de la página
 st.set_page_config(layout="centered", page_title="TalentoTech", page_icon=":bar_chart:")
@@ -11,7 +12,7 @@ st.title("📊 Análisis de datos - Transición energética")
 
 # Header
 t1, t2 = st.columns([0.5, 0.5])
-t1.image('imagentalento.jpg', width=300)
+t1.image('Frontend\imagentalento.jpg', width=300)
 t2.markdown("""
 ### 👥 Equipo de trabajo
 - Johan Ospina  
@@ -21,7 +22,7 @@ t2.markdown("""
 """)
 
 # Tabs
-tabs = st.tabs(["🏠 Inicio", "📂 Visualización de datos", "📊 Gráficos interactivos"])
+tabs = st.tabs(["🏠 Inicio", "📂 Visualización de datos", "📊 Gráficos interactivos", "✅ Ver resultado"])
 
 # -------------------------------
 # 🏠 PESTAÑA 1: INFORMACIÓN
@@ -142,12 +143,10 @@ with tabs[2]:
             fig, ax = plt.subplots()
 
             if tipo_grafico == "Barras":
-                sns.barplot(data=df_group, x=col_x, y=col_y, ax=ax)
+                sns.barplot(data=df_group, y=col_x, x=col_y, ax=ax)
 
-                # Reducir etiquetas
-                if len(df_group[col_x]) > 10:
-                    ax.set_xticks(ax.get_xticks()[::3])
-                plt.xticks(rotation=90, fontsize=8)
+                # Etiquetas en eje Y para categorías
+                ax.set_yticklabels(ax.get_yticklabels(), rotation=0, fontsize=8)
 
             elif tipo_grafico == "Línea":
                 sns.lineplot(data=df_group, x=col_x, y=col_y, ax=ax, marker="o")
@@ -172,16 +171,93 @@ with tabs[2]:
                     aggfunc='sum'
                 )
 
-                df_pivot.plot(kind='bar', stacked=True, ax=ax)
+                df_pivot.plot(kind='barh', stacked=True, ax=ax)
 
-                # Si hay muchas categorías
-                if len(df_pivot.index) > 10:
-                    ax.set_xticks(ax.get_xticks()[::2])
-
-                plt.xticks(rotation=90, fontsize=8)
+                ax.set_yticklabels(ax.get_yticklabels(), rotation=0, fontsize=8)
 
             # Ajuste final general
             ax.set_ylabel(f"{col_y} ({unidad})")
             plt.tight_layout()
 
             st.pyplot(fig)
+
+with tabs[3]:
+    st.header("✅ Ver resultado")
+
+    # Cargar tabla_resumen desde la carpeta Codigo
+    path_tabla = "C:\\Users\\USUARIO\\Documents\\Datos\\Bootcamp\\Bootcamp2026-1\\Codigo\\tabla_resumen.csv"
+    try:
+        tabla_resumen = pd.read_csv(path_tabla, encoding='utf-8')
+    except FileNotFoundError:
+        st.error(f"No se encontró el archivo: {path_tabla}")
+        tabla_resumen = pd.DataFrame()
+    except Exception:
+        tabla_resumen = pd.read_csv(path_tabla, encoding='latin-1')
+
+    # Filtrar solo las categorías principales (Renovable / No Renovable)
+    if not tabla_resumen.empty and "Product" in tabla_resumen.columns:
+        tabla_resumen = tabla_resumen[tabla_resumen["Product"].isin(["Renovable", "No Renovable"])]
+
+    st.subheader("📊 Renovables Vs Fósiles")
+    st.dataframe(tabla_resumen)
+
+    "### Evolución temporal de energía"
+    # Cargar datos_final para gráfica de líneas
+    path_datos = "C:\\Users\\USUARIO\\Documents\\Datos\\Bootcamp\\Bootcamp2026-1\\Codigo\\datos_final.csv"
+    try:
+        datos_final = pd.read_csv(path_datos, encoding='utf-8')
+    except FileNotFoundError:
+        st.error(f"No se encontró el archivo: {path_datos}")
+        datos_final = pd.DataFrame()
+    except Exception:
+        datos_final = pd.read_csv(path_datos, encoding='latin-1')
+
+    if not datos_final.empty and "Time" in datos_final.columns:
+        # Convertir Time a datetime
+        datos_final["Time"] = pd.to_datetime(datos_final["Time"])
+
+        # Agrupar por mes y producto
+        df_lineas = datos_final.groupby([datos_final["Time"].dt.to_period("M"), "Product"])["Value"].sum().reset_index()
+        df_lineas["Time"] = df_lineas["Time"].dt.to_timestamp()
+
+        # Filtrar solo Renovable y No Renovable
+        df_lineas = df_lineas[df_lineas["Product"].isin(["Renovable", "No Renovable"])]
+
+        line_chart = alt.Chart(df_lineas).mark_line(point=True).encode(
+            x=alt.X("Time:T", title="Fecha"),
+            y=alt.Y("Value:Q", title="Valor (GWh)"),
+            color=alt.Color("Product:N", legend=alt.Legend(orient="bottom")),
+            tooltip=["Time:T", "Product:N", "Value:Q"]
+        ).properties(height=300)
+
+        st.altair_chart(line_chart, use_container_width=True)
+    else:
+        st.write("No se pudieron cargar los datos para la gráfica de líneas")
+
+    "### Distribución renovable vs no renovable"
+    cols = st.columns([3,2])
+    
+    with cols[1].container(border=True, height="stretch"):
+
+        st.altair_chart(
+        alt.Chart(tabla_resumen)
+        .mark_bar()
+        .encode(
+            alt.X("Product:N").title("Tipo de Energía"),
+            alt.Y("Value:Q").title("Valor (GWh)"),
+            alt.Color("Product:N", legend=alt.Legend(orient="bottom")),
+            tooltip=["Product:N", "Value:Q", "Unit:N"]
+        )
+        .properties(height=300)
+    )
+
+    with cols[0].container(border=True, height="stretch"):
+
+        chart = alt.Chart(tabla_resumen).mark_arc().encode(
+            theta=alt.Theta("Value:Q"),
+            color=alt.Color("Product:N", legend=alt.Legend(orient="bottom")),
+            tooltip=["Product:N", "Value:Q"]
+        )
+
+        st.altair_chart(chart, use_container_width=True)
+
