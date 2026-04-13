@@ -198,10 +198,10 @@ with tabs[3]:
     if not tabla_resumen.empty and "Product" in tabla_resumen.columns:
         tabla_resumen = tabla_resumen[tabla_resumen["Product"].isin(["Renovable", "No Renovable"])]
 
-    st.subheader("📊 Renovables Vs Fósiles")
+    st.subheader("♻️ Renovables Vs Fósiles")
     st.dataframe(tabla_resumen)
 
-    "### Evolución temporal de energía"
+    st.subheader("⛅ Evolución temporal de energía")
     # Cargar datos_final para gráfica de líneas
     path_datos = "C:\\Users\\USUARIO\\Documents\\Datos\\Bootcamp\\Bootcamp2026-1\\Codigo\\datos_final.csv"
     try:
@@ -234,7 +234,7 @@ with tabs[3]:
     else:
         st.write("No se pudieron cargar los datos para la gráfica de líneas")
 
-    "### Distribución renovable vs no renovable"
+    st.markdown("### <div style='text-align: center;'>Distribución renovable vs no renovable</div>", unsafe_allow_html=True)
     cols = st.columns([3,2])
     
     with cols[1].container(border=True, height="stretch"):
