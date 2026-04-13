@@ -261,3 +261,51 @@ with tabs[3]:
 
         st.altair_chart(chart, use_container_width=True)
 
+    st.markdown("### Gráfico de barras horizontal de energías renovables")
+    df_renovables = pd.read_csv("C:\\Users\\USUARIO\\Documents\\Datos\\Bootcamp\\Bootcamp2026-1\\df_solo_renovables.csv")
+    df_renovables_agrupado = df_renovables.groupby("Product")["Value"].sum().reset_index()
+    
+    chart = alt.Chart(df_renovables_agrupado).mark_bar().encode(
+        alt.X("Value:Q").title("Valor (GWh)"),
+        alt.Y("Product:N").title("Tipo de Energía"),
+        alt.Color("Product:N", scale=alt.Scale(scheme="category10"), legend=alt.Legend(orient="bottom")),
+        tooltip=["Product:N", "Value:Q"]
+    ).properties(height=400)
+    
+    st.altair_chart(chart, use_container_width=True)
+
+
+    st.markdown("### Evolución temporal de energías renovables")
+    # Cargar datos para gráfica de líneas
+    datos_final = pd.read_csv("C:\\Users\\USUARIO\\Documents\\Datos\\Bootcamp\\Bootcamp2026-1\\df_solo_renovables.csv")
+    
+    if not datos_final.empty and "Time" in datos_final.columns:
+        # Convertir Time a datetime
+        datos_final["Time"] = pd.to_datetime(datos_final["Time"])
+        
+        # Agrupar por fecha y producto (mantener cada tipo de energía por separado)
+        df_lineas = datos_final.groupby(["Time", "Product"])["Value"].sum().reset_index()
+        
+        # Crear gráfico de líneas general
+        line_chart = alt.Chart(df_lineas).mark_line(point=True).encode(
+            x=alt.X("Time:T", title="Fecha"),
+            y=alt.Y("Value:Q", title="Valor (GWh)"),
+            color=alt.Color("Product:N", scale=alt.Scale(scheme="category10"), legend=alt.Legend(orient="bottom")),
+            tooltip=["Time:T", "Product:N", "Value:Q"]
+        ).properties(height=400).configure_axis(grid=True)
+        
+        st.altair_chart(line_chart, use_container_width=True)
+
+        st.markdown("### Evolución temporal sin Hydro")
+        df_lineas_sin_hydro = df_lineas[df_lineas["Product"] != "Hydro"]
+
+        line_chart_sin_hydro = alt.Chart(df_lineas_sin_hydro).mark_line(point=True).encode(
+            x=alt.X("Time:T", title="Fecha"),
+            y=alt.Y("Value:Q", title="Valor (GWh)"),
+            color=alt.Color("Product:N", scale=alt.Scale(scheme="category10"), legend=alt.Legend(orient="bottom")),
+            tooltip=["Time:T", "Product:N", "Value:Q"]
+        ).properties(height=400).configure_axis(grid=True)
+
+        st.altair_chart(line_chart_sin_hydro, use_container_width=True)
+    else:
+        st.warning("No se pudieron cargar los datos para la gráfica de líneas")
