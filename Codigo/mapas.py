@@ -3,22 +3,23 @@ import pandas as pd
 import plotly.express as px
 import requests
 import os
+import json
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 st.set_page_config(page_title="Mapa Solar Colombia", layout="wide")
 
-url_repo = "https://gist.githubusercontent.com/john-guerra/43c7656821069d00dcbc/raw/3aadedf47badbdac823b00dbe259f6bc6d9e1899/colombia.geo.json"
+url_repo = os.path.join(BASE_DIR, "..", "Documentos", "colombia.geo.json")
+url_municipios_prueba = "https://gist.githubusercontent.com/john-guerra/727e8992e9599b9d9f1dbfdc4c8e479e/raw/090f8b935a437e24d65b64d87598fbb437c006da/colombia-municipios.json"
 
 @st.cache_data
-def load_json(url):
-    response = requests.get(url)
-    return response.json()
+def load_json(path):
+    with open(path, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
 @st.cache_data
 def get_data():
-    # 1. Obtiene la ruta de la carpeta donde está ESTE archivo (mapas.py)
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    
-    # 2. Construye la ruta subiendo un nivel y entrando a Documentos
+    # 1. Construye la ruta subiendo un nivel y entrando a Documentos
     ruta = os.path.join(BASE_DIR, "..", "Documentos", "solar.csv")
     
     # Verificación de seguridad
@@ -30,9 +31,9 @@ def get_data():
 
     df['Departamento'] = df['Departamento'].astype(str).str.upper().str.strip()
     mapeo = {
-        'BOGOTÁ': 'BOGOTA D.C.',
-        'BOGOTA': 'BOGOTA D.C.',
-        'BOGOTÁ D.C.': 'BOGOTA D.C.',
+        'BOGOTÁ': 'SANTAFE DE BOGOTA D.C.',
+        'BOGOTA': 'SANTAFE DE BOGOTA D.C.',
+        'BOGOTÁ D.C.': 'SANTAFE DE BOGOTA D.C.',
         'VALLE DEL CAUCA': 'VALLE DEL CAUCA',
         'NARIÑO': 'NARINO',
         'ATLÁNTICO': 'ATLANTICO',
@@ -57,6 +58,11 @@ st.title("☀️ Generación de Energía Solar en Colombia")
 st.markdown("Visualización basada en proyectos solares activos y estimados.")
 # st.write("Departamentos detectados en CSV:", df_solar['Departamento'].unique()[:33])
 # st.write("Departamentos detectados en GeoJSON:", [feature['properties']['NOMBRE_DPT'] for feature in colombia_geojson['features']][:8])
+
+st.sidebar.header("Filtros de Búsqueda")
+# Obtenemos la lista de departamentos únicos del CSV
+lista_deptos = ["TODOS"] + sorted(df_solar['Departamento'].unique().tolist())
+depto_seleccionado = st.sidebar.selectbox("Selecciona un Departamento", lista_deptos)
 
 #  Mapa de Calor
 fig = px.choropleth(
@@ -87,8 +93,7 @@ fig.update_geos(
     countrycolor="Black",    # Color de la frontera de Colombia
     showcoastlines=True,     # Muestra la línea de costa
     coastlinecolor="RebeccaPurple", 
-    showland=True,           # Pinta el fondo de la tierra
-    landcolor="lightgrey",   # Color para departamentos sin datos
+    showland=False,           # Pinta el fondo de la tierra
     showocean=True,          # Activa el color del mar
     oceancolor="LightBlue"   # Color del agua
 )
@@ -99,8 +104,6 @@ fig.update_layout(
     paper_bgcolor="white",    # Color del fondo del "papel"
     title_font_color='darkblue' 
 )
-
-fig.update_geos(fitbounds="locations", visible=False)
 
 
 # Para Streamlit
