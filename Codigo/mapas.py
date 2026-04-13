@@ -19,10 +19,9 @@ def get_data():
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     
     # 2. Construye la ruta subiendo un nivel y entrando a Documentos
-    # Esto equivale a: Codigo -> (sube) -> Documentos -> solar.csv
     ruta = os.path.join(BASE_DIR, "..", "Documentos", "solar.csv")
     
-    # 3. Verificación de seguridad
+    # Verificación de seguridad
     if not os.path.exists(ruta):
         st.error(f"Archivo no encontrado en la ruta calculada: {ruta}")
         st.stop()
@@ -31,9 +30,9 @@ def get_data():
 
     df['Departamento'] = df['Departamento'].astype(str).str.upper().str.strip()
     mapeo = {
-        'BOGOTÁ': 'SANTAFE DE BOGOTA D.C.',
-        'BOGOTA': 'SANTAFE DE BOGOTA D.C.',
-        'BOGOTÁ D.C.': 'SANTAFE DE BOGOTA D.C.',
+        'BOGOTÁ': 'BOGOTA D.C.',
+        'BOGOTA': 'BOGOTA D.C.',
+        'BOGOTÁ D.C.': 'BOGOTA D.C.',
         'VALLE DEL CAUCA': 'VALLE DEL CAUCA',
         'NARIÑO': 'NARINO',
         'ATLÁNTICO': 'ATLANTICO',
@@ -46,6 +45,12 @@ def get_data():
 
 colombia_geojson = load_json(url_repo)
 df_solar = get_data()
+departamentos = df_solar[['Departamento', 'Energía [kWh/año]']]
+departamentos = departamentos.groupby('Departamento').sum().reset_index()
+
+# departamentos.columns = ['Departamento', 'Energia']
+st.write(departamentos)
+
 
 # Interfaz 
 st.title("☀️ Generación de Energía Solar en Colombia")
@@ -55,18 +60,23 @@ st.markdown("Visualización basada en proyectos solares activos y estimados.")
 
 #  Mapa de Calor
 fig = px.choropleth(
-    df_solar,
+    departamentos,
     geojson=colombia_geojson,
     locations="Departamento",
     featureidkey="properties.NOMBRE_DPT",
     color="Energía [kWh/año]",
-    color_continuous_scale="Viridis",
-    hover_data=["Capacidad", "Proyecto"],
+    color_continuous_scale="Reds",
+    hover_data={
+        "Departamento": False,   # Lo ponemos en False para que no se repita abajo del título
+        "Energía [kWh/año]": ":,.2f", # Formato con comas y 2 decimales
+    },
     labels={
         'Energía [kWh/año]': 'Total kWh/año',
         'Proyecto': 'Número de Proyectos'
     },
-    title="Distribución Departamental de Energía Solar"   
+    title="Distribución Departamental de Energía Solar",
+    hover_name="Departamento",  # Título destacado al señalar
+    
 )
 
 
@@ -84,16 +94,14 @@ fig.update_geos(
 )
 
 fig.update_layout(
-    height=700, 
-    margin={"r":0,"t":50,"l":0,"b":0},
+    height=650, 
+    margin={"r":0,"t":30,"l":10,"b":0},
     paper_bgcolor="white",    # Color del fondo del "papel"
+    title_font_color='darkblue' 
 )
 
-st.plotly_chart(fig, use_container_width=True)
-
-
 fig.update_geos(fitbounds="locations", visible=False)
-fig.update_layout(height=650, margin={"r":0,"t":50,"l":0,"b":0})
+
 
 # Para Streamlit
 st.plotly_chart(fig, use_container_width=True)
