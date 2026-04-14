@@ -3,3 +3,5 @@ numpy
 matplotlib 
 streamlit >= 1.52.0
 seaborn
+scipy
+statsmodels
