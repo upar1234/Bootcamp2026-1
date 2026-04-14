@@ -12,54 +12,123 @@ st.title("📊 Análisis de datos - Transición energética")
 
 # Header
 t1, t2 = st.columns([0.5, 0.5])
-t1.image('Frontend\imagentalento.jpg', width=300)
+t1.image('Frontend\Image_logo.png', width=300)
 t2.markdown("""
 ### 👥 Equipo de trabajo
-- Johan Ospina  
-- Liliana Jimenez  
-- Andi  
-- Alejandro Aristizabal  
+- Johan Ospina johanospina06@gmail.com
+- Liliana Jimenez liajiza@gmail.com 
+- Andi Jimenez ssebas8feb@gmail.com
+- Alejandro Aristizabal upar1234@gmail.com
 """)
 
 # Tabs
-tabs = st.tabs(["🏠 Inicio", "📂 Visualización de datos", "📊 Gráficos interactivos", "✅ Ver resultado"])
+tabs = st.tabs(["🏠 Inicio", "📂 Visualización de datos", "✅ Ver resultado", "🔅 Mapas de calor"])
 
 # -------------------------------
 # 🏠 PESTAÑA 1: INFORMACIÓN
 # -------------------------------
 with tabs[0]:
-    st.header("📌 Descripción del proyecto")
+    st.header("📌 Proyecto: Transición energética y emisiones de CO₂")
 
     st.markdown("""
-    Este proyecto analiza la relación entre los tipos de generación de energía 
-    y las emisiones de CO₂ en Colombia entre 2014 y 2025.
+    ### 🌍 Contexto
 
-    ### 🎯 Objetivo
-    Evaluar si el crecimiento de energías renovables ha contribuido a la reducción de emisiones.
+    El cambio climático es uno de los mayores desafíos globales, y la reducción de emisiones de CO₂ 
+    se ha convertido en una prioridad para gobiernos y sectores productivos. En este contexto, 
+    la transición energética hacia fuentes renovables juega un papel fundamental.
 
-    ### 📚 Estado del arte
-    La transición energética es clave para mitigar el cambio climático. 
-    Colombia ha avanzado en energías limpias como solar e hidráulica, 
-    pero aún depende de fuentes fósiles.
+    Colombia ha avanzado en la diversificación de su matriz energética, incorporando fuentes como 
+    la energía solar y eólica. Sin embargo, aún existe una dependencia significativa de combustibles fósiles.
 
-    ### ⚙️ Proceso del proyecto
-    - Limpieza y transformación de datos (Python)
-    - Integración en base de datos (SQL)
-    - Análisis exploratorio
-    - Visualización en Streamlit
+    ---
     """)
 
-    st.subheader("📷 Ejemplo de visualización")
-    fig, ax = plt.subplots()
-    sns.barplot(x=['Solar', 'Hidro', 'Carbón'], y=[10, 30, 50], ax=ax)
-    st.pyplot(fig)
+    st.markdown("""
+    ### 🎯 Objetivo del proyecto
+
+    Evaluar la existencia de una correlación entre la producción de energía solar y los cambios en las emisiones de CO₂, 
+    con el fin de analizar cómo el aumento en la generación de energía solar contribuye a la reducción de la huella de carbono.
+
+    ---
+    """)
+
+    st.markdown("""
+    ### 📚 Estado del arte
+
+    La transición energética implica el cambio desde sistemas basados en combustibles fósiles hacia sistemas más sostenibles 
+    basados en energías renovables. Diversos estudios indican que:
+
+    - Las energías renovables reducen la intensidad de carbono del sistema energético  
+    - La energía solar ha tenido un crecimiento acelerado en la última década  
+    - La reducción de emisiones no siempre es proporcional al crecimiento renovable, debido a factores como:
+        - Aumento de la demanda energética  
+        - Persistencia de fuentes fósiles  
+        - Ineficiencias en la distribución energética  
+
+    En Colombia, aunque la matriz energética tiene una alta participación hidroeléctrica, 
+    la incorporación de energía solar es relativamente reciente, lo que plantea interrogantes 
+    sobre su impacto real en la reducción de emisiones.
+
+    ---
+    """)
+
+    st.markdown("""
+    ### ⚙️ Metodología
+
+    Para abordar este problema, el proyecto se desarrolla en las siguientes etapas:
+
+    1. Limpieza y transformación de datos con Python  
+    2. Integración de datasets (emisiones y producción energética)  
+    3. Análisis exploratorio de datos  
+    4. Evaluación de correlaciones  
+    5. Visualización interactiva en Streamlit  
+
+    ---
+    """)
+
+    st.markdown("""
+    ### 📊 Hipótesis
+
+    > El incremento en la producción de energía solar está asociado con una disminución en las emisiones de CO₂.
+
+    ---
+    """)
+
+    st.markdown("""
+    ### 💡 Valor del proyecto
+
+    Este análisis permite:
+
+    - Entender el impacto real de las energías renovables  
+    - Apoyar la toma de decisiones en política energética  
+    - Identificar oportunidades de mejora en la transición energética  
+
+    ---
+    """)
+
+    st.markdown("""
+    ### 📄 Referencias
+                
+    - Gobierno de Colombia. (s.f.). *Hoja de ruta de la transición energética en Colombia*.  
+    Documento técnico de lineamientos para la transformación del sistema energético hacia fuentes sostenibles.
+
+    - International Energy Agency (IEA). (2025). *Monthly Electricity Statistics*.  
+    https://www.iea.org/data-and-statistics/data-product/monthly-electricity-statistics#documentation  
+
+    - Datos Abiertos Colombia. (s.f.). *Meta FNCER: Incorporar nuevas fuentes de energía renovable en la matriz energética*.  
+    https://www.datos.gov.co/Minas-y-Energ-a/Meta-FNCER-Incorporar-en-la-matriz-energ-tica-nuev/vy9n-w6hc/about_data  
+
+    - Datos Abiertos Colombia. (s.f.). *Inventario Nacional de Gases de Efecto Invernadero*.  
+    https://www.datos.gov.co/Ambiente-y-Desarrollo-Sostenible/Inventario-Nacional-Gases-Efecto-Invernadero/6rff-a5ep/about_data  
+    """)
+
 
 
 # -------------------------------
 # 📂 PESTAÑA 2: SUBIR Y VER DATOS
 # -------------------------------
 with tabs[1]:
-    st.header("📂 Cargar y visualizar dataset")
+    st.header("📂 Visualización de dataset")
 
     archivo = st.file_uploader("Sube tu archivo CSV", type=["csv"])
 
@@ -83,105 +152,9 @@ with tabs[1]:
 
 
 # -------------------------------
-# 📊 PESTAÑA 3: GRÁFICOS INTERACTIVOS
+# 📊 PESTAÑA 3: VER RESULTADOS
 # -------------------------------
 with tabs[2]:
-    st.header("📊 Generador de gráficos interactivos")
-
-    archivo2 = st.file_uploader("Sube tu dataset para graficar", type=["csv"], key="grafico")
-
-    if archivo2 is not None:
-
-        # Leer archivo con manejo de encoding
-        try:
-            df = pd.read_csv(archivo2, encoding='utf-8')
-        except:
-            df = pd.read_csv(archivo2, encoding='latin-1')
-
-        st.subheader("Vista previa")
-        st.dataframe(df.head())
-
-        columnas = df.columns.tolist()
-
-        # Selección de columnas
-        col_x = st.selectbox("Selecciona la columna para el eje X", columnas)
-        col_y = st.selectbox("Selecciona la columna para el eje y", columnas)
-
-        # Detectar columnas numéricas
-        numericas = df.select_dtypes(include=np.number).columns.tolist()
-
-        # Escalado automático
-        if col_y in numericas:
-            max_val = df[col_y].max()
-
-            if max_val > 1_000_000:
-                df[col_y] = df[col_y] / 1_000_000
-                unidad = "Millones"
-            elif max_val > 1_000:
-                df[col_y] = df[col_y] / 1_000
-                unidad = "Miles"
-            else:
-                unidad = "Unidades"
-        else:
-            unidad = ""
-
-        st.write(f"Escala aplicada: {unidad}")
-
-        # Selector de tipo de gráfica
-        tipo_grafico = st.selectbox(
-            "Selecciona el tipo de gráfico",
-            ["Barras", "Línea", "Torta", "Barras apiladas"]
-        )
-
-        # Agrupar datos si es necesario
-        df_group = df.groupby(col_x)[col_y].sum().reset_index()
-
-        # ------------------ GRÁFICOS ------------------
-
-        if st.button("Generar gráfico"):
-
-            fig, ax = plt.subplots()
-
-            if tipo_grafico == "Barras":
-                sns.barplot(data=df_group, y=col_x, x=col_y, ax=ax)
-
-                # Etiquetas en eje Y para categorías
-                ax.set_yticklabels(ax.get_yticklabels(), rotation=0, fontsize=8)
-
-            elif tipo_grafico == "Línea":
-                sns.lineplot(data=df_group, x=col_x, y=col_y, ax=ax, marker="o")
-
-                # SOLO si parece tiempo (muchos valores)
-                if len(df_group[col_x]) > 10:
-                    ax.set_xticks(ax.get_xticks()[::3])
-
-                plt.xticks(rotation=90, fontsize=8)
-
-            elif tipo_grafico == "Torta":
-                ax.pie(df_group[col_y], labels=df_group[col_x], autopct='%1.1f%%')
-                ax.set_title("Distribución")
-
-            elif tipo_grafico == "Barras apiladas":
-                col_stack = st.selectbox("Selecciona columna para apilar", columnas)
-
-                df_pivot = df.pivot_table(
-                    index=col_x,
-                    columns=col_stack,
-                    values=col_y,
-                    aggfunc='sum'
-                )
-
-                df_pivot.plot(kind='barh', stacked=True, ax=ax)
-
-                ax.set_yticklabels(ax.get_yticklabels(), rotation=0, fontsize=8)
-
-            # Ajuste final general
-            ax.set_ylabel(f"{col_y} ({unidad})")
-            plt.tight_layout()
-
-            st.pyplot(fig)
-
-with tabs[3]:
     st.header("✅ Ver resultado")
 
     # Cargar tabla_resumen desde la carpeta Codigo
@@ -265,12 +238,23 @@ with tabs[3]:
     df_renovables = pd.read_csv("C:\\Users\\USUARIO\\Documents\\Datos\\Bootcamp\\Bootcamp2026-1\\df_solo_renovables.csv")
     df_renovables_agrupado = df_renovables.groupby("Product")["Value"].sum().reset_index()
     
+    # Mapear nombres a español
+    mapeo_productos = {
+        "Geothermal": "Geotérmica",
+        "Other Renewables": "Otras Renovables",
+        "Hydro": "Hidroelectrica",
+        "Combustible Renewables": "Combustible Renovables",
+        "Solar": "Solar",
+        "Wind": "Eólico"
+    }
+    df_renovables_agrupado["Product"] = df_renovables_agrupado["Product"].map(mapeo_productos)
+    
     chart = alt.Chart(df_renovables_agrupado).mark_bar().encode(
         alt.X("Value:Q").title("Valor (GWh)"),
         alt.Y("Product:N").title("Tipo de Energía"),
         alt.Color("Product:N", scale=alt.Scale(scheme="category10"), legend=alt.Legend(orient="bottom")),
         tooltip=["Product:N", "Value:Q"]
-    ).properties(height=400)
+    ).properties(height=400).configure_axis(grid=True).configure_view(strokeWidth=0)
     
     st.altair_chart(chart, use_container_width=True)
 
@@ -286,6 +270,17 @@ with tabs[3]:
         # Agrupar por fecha y producto (mantener cada tipo de energía por separado)
         df_lineas = datos_final.groupby(["Time", "Product"])["Value"].sum().reset_index()
         
+        # Mapear nombres a español
+        mapeo_productos = {
+            "Geothermal": "Geotérmica",
+            "Other Renewables": "Otras Renovables",
+            "Hydro": "Hidroelectrica",
+            "Combustible Renewables": "Combustible Renovables",
+            "Solar": "Solar",
+            "Wind": "Eólico"
+        }
+        df_lineas["Product"] = df_lineas["Product"].map(mapeo_productos)
+        
         # Crear gráfico de líneas general
         line_chart = alt.Chart(df_lineas).mark_line(point=True).encode(
             x=alt.X("Time:T", title="Fecha"),
@@ -297,7 +292,7 @@ with tabs[3]:
         st.altair_chart(line_chart, use_container_width=True)
 
         st.markdown("### Evolución temporal sin Hydro")
-        df_lineas_sin_hydro = df_lineas[df_lineas["Product"] != "Hydro"]
+        df_lineas_sin_hydro = df_lineas[df_lineas["Product"] != "Hidroelectrica"]
 
         line_chart_sin_hydro = alt.Chart(df_lineas_sin_hydro).mark_line(point=True).encode(
             x=alt.X("Time:T", title="Fecha"),
@@ -309,3 +304,30 @@ with tabs[3]:
         st.altair_chart(line_chart_sin_hydro, use_container_width=True)
     else:
         st.warning("No se pudieron cargar los datos para la gráfica de líneas")
+
+#Pestaña 4: Mapa de calor
+with tabs[3]:
+    st.header("🔅 Mapas de calor")
+
+    archivo2 = st.file_uploader("Sube tu dataset para graficar", type=["csv"], key="grafico")
+
+    if archivo2 is not None:
+
+        # Leer archivo con manejo de encoding
+        try:
+            df = pd.read_csv(archivo2, encoding='utf-8')
+        except:
+            df = pd.read_csv(archivo2, encoding='latin-1')
+
+        st.subheader("Vista previa")
+        st.dataframe(df.head())
+
+        columnas = df.columns.tolist()
+
+        # Selección de columnas
+        col_x = st.selectbox("Selecciona la columna para el eje X", columnas)
+        col_y = st.selectbox("Selecciona la columna para el eje y", columnas)
+
+        # Detectar columnas numéricas
+        numericas = df.select_dtypes(include=np.number).columns.tolist()
+
