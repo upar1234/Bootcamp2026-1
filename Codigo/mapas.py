@@ -31,15 +31,20 @@ def get_data():
 
     df['Departamento'] = df['Departamento'].astype(str).str.upper().str.strip()
     mapeo = {
-        'BOGOTÁ': 'SANTAFE DE BOGOTA D.C.',
-        'BOGOTA': 'SANTAFE DE BOGOTA D.C.',
-        'BOGOTÁ D.C.': 'SANTAFE DE BOGOTA D.C.',
+        'BOGOTÁ': 'SANTAFE DE BOGOTA D.C',
+        'BOGOTA': 'SANTAFE DE BOGOTA D.C',
+        'BOGOTÁ D.C.': 'SANTAFE DE BOGOTA D.C',
         'VALLE DEL CAUCA': 'VALLE DEL CAUCA',
         'NARIÑO': 'NARINO',
         'ATLÁNTICO': 'ATLANTICO',
         'BOLÍVAR': 'BOLIVAR',
         'NORTE DE SANTANDER': 'NORTE DE SANTANDER',
-        'QUINDÍO': 'QUINDIO'
+        'QUINDÍO': 'QUINDIO',
+        'CÓRDOBA':'CORDOBA',
+        'CHOCÓ':'CHOCO',
+        'GUAINÍA' : 'GUAINIA',
+        'BOYACÁ' : 'BOYACA',
+        'ARCHIPIÉLAGO DE SAN ANDRÉS, PROVIDENCIA Y SANTA CATALINA' : 'ARCHIPIELAGO DE SAN ANDRES PROVIDENCIA Y SANTA CATALINA'
     }
     df['Departamento'] = df['Departamento'].replace(mapeo)
     return df
@@ -50,19 +55,19 @@ departamentos = df_solar[['Departamento', 'Energía [kWh/año]']]
 departamentos = departamentos.groupby('Departamento').sum().reset_index()
 
 # departamentos.columns = ['Departamento', 'Energia']
-st.write(departamentos)
-
 
 # Interfaz 
 st.title("☀️ Generación de Energía Solar en Colombia")
 st.markdown("Visualización basada en proyectos solares activos y estimados.")
 # st.write("Departamentos detectados en CSV:", df_solar['Departamento'].unique()[:33])
-# st.write("Departamentos detectados en GeoJSON:", [feature['properties']['NOMBRE_DPT'] for feature in colombia_geojson['features']][:8])
+# st.write("Departamentos detectados en GeoJSON:", [feature['properties']['NOMBRE_DPT'] for feature in colombia_geojson['features']][:25])
+st.title("🎈 Mapa de Proyectos Solares (Burbujas)")
+st.markdown("Cada globo representa un proyecto. El tamaño indica la energía generada.")
 
 st.sidebar.header("Filtros de Búsqueda")
-# Obtenemos la lista de departamentos únicos del CSV
+# Lista de departamentos únicos del CSV
 lista_deptos = ["TODOS"] + sorted(df_solar['Departamento'].unique().tolist())
-depto_seleccionado = st.sidebar.selectbox("Selecciona un Departamento", lista_deptos)
+
 
 #  Mapa de Calor
 fig = px.choropleth(
@@ -105,9 +110,45 @@ fig.update_layout(
     title_font_color='darkblue' 
 )
 
+# --- CREACIÓN DEL MAPA DE GLOBOS (SCATTER GEO) ---
+# Nota: Para que los puntos se ubiquen bien, tu CSV debería tener columnas 'Latitud' y 'Longitud'.
+# Si no las tiene, Plotly usará los nombres de los departamentos, pero los globos quedarán en el centro de cada dpto.
+
+fig2 = px.scatter_geo(
+    df_solar,
+    locations="Departamento",        
+    geojson=None,                    # No necesita GeoJSON obligatorio para puntos básicos
+    color="Departamento",            # Color diferente por departamento
+    size="Energía [kWh/año]",       # El tamaño del globo depende de la energía
+    hover_name="Proyecto" if "Proyecto" in df_solar.columns else "Departamento",
+    hover_data=["Capacidad", "Energía [kWh/año]"],
+    size_max=30,                     # Ajusta el tamaño máximo de los globos
+    template="plotly_white",
+    title="Proyectos Solares por Capacidad"
+)
+
+# Enfocar el mapa en Colombia
+fig2.update_geos(
+    lataxis_range=[ -4, 13], 
+    lonaxis_range=[-82, -67],
+    visible=False, 
+    showland=True, 
+    landcolor="LightGreen",
+    showocean=True, 
+    oceancolor="LightBlue",
+    showcountries=True
+)
+
+fig.update_layout(height=700, margin={"r":0,"t":50,"l":0,"b":0})
+fig2.update_layout(height=700, margin={"r":0,"t":50,"l":0,"b":0})
+
+st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig2, use_container_width=True)
+
 
 # Para Streamlit
-st.plotly_chart(fig, use_container_width=True)
+
+depto_seleccionado = st.selectbox("Selecciona un Departamento", lista_deptos)
 
 # Información adicional
 col1, col2 = st.columns(2)
@@ -118,3 +159,5 @@ with col2:
 
 if st.checkbox("Ver datos por departamento"):
     st.dataframe(df_solar)
+
+st.write(departamentos)
