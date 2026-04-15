@@ -44,7 +44,7 @@ tabs = st.tabs(["🏠 Inicio", "📂 Bases de datos", "⚡ Producción de Energ�
 # 🏠 PESTAÑA 1: INICIO
 # -------------------------------
 with tabs[0]:
-    st.header("📌 Proyecto: Transición energética y emisiones de CO₂")
+    st.header("📌 Proyecto: Energía solar y emisiones de CO₂")
 
     st.markdown("""
     ### 🌍 Contexto
