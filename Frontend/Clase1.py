@@ -4,6 +4,16 @@ import seaborn as sns
 import streamlit as st
 import matplotlib.pyplot as plt
 import altair as alt
+import statsmodels.api as sm
+from scipy.stats import shapiro
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ruta_colombia=os.path.join(BASE_DIR,"..", "Documentos", "colombia.csv")
+ruta_solar=os.path.join(BASE_DIR,"..", "Documentos", "solar.csv")
+ruta_renovables=os.path.join(BASE_DIR,"..", "df_solo_renovables.csv")
+ruta_tabla_resumen=os.path.join(BASE_DIR,"..","Codigo", "tabla_resumen.csv")
+ruta_datos_final=os.path.join(BASE_DIR,"..","Codigo", "datos_final.csv")
 
 # Configuración de la página
 st.set_page_config(layout="centered", page_title="TalentoTech", page_icon=":bar_chart:")
@@ -16,16 +26,16 @@ t1.image('Frontend\Image_logo.png', width=300)
 t2.markdown("""
 ### 👥 Equipo de trabajo
 - Johan Ospina johanospina06@gmail.com
-- Liliana Jimenez liajiza@gmail.com 
-- Andi Jimenez ssebas8feb@gmail.com
+- Liliana Jiménez liajiza@gmail.com 
+- Andi Jiménez ssebas8feb@gmail.com
 - Alejandro Aristizabal upar1234@gmail.com
 """)
 
 # Tabs
-tabs = st.tabs(["🏠 Inicio", "📂 Visualización de datos", "✅ Ver resultado", "🔅 Mapas de calor"])
+tabs = st.tabs(["🏠 Inicio", "📂 Bases de datos", "⚡ Producción de Energía", "🔅 Atlas Solar","📈 Análisis Descriptivo"])
 
 # -------------------------------
-# 🏠 PESTAÑA 1: INFORMACIÓN
+# 🏠 PESTAÑA 1: INICIO
 # -------------------------------
 with tabs[0]:
     st.header("📌 Proyecto: Transición energética y emisiones de CO₂")
@@ -112,10 +122,12 @@ with tabs[0]:
     - Gobierno de Colombia. (s.f.). *Hoja de ruta de la transición energética en Colombia*.  
     Documento técnico de lineamientos para la transformación del sistema energético hacia fuentes sostenibles.
 
-    - International Energy Agency (IEA). (2025). *Monthly Electricity Statistics*.  
+    - International Energy Agency (IEA). (2025). *Monthly Electricity Statistics*:
+     _Producción de Energía en Colombia_. 
     https://www.iea.org/data-and-statistics/data-product/monthly-electricity-statistics#documentation  
 
-    - Datos Abiertos Colombia. (s.f.). *Meta FNCER: Incorporar nuevas fuentes de energía renovable en la matriz energética*.  
+    - Datos Abiertos Colombia. (s.f.). *Meta FNCER: Incorporar nuevas fuentes de energía renovable en la matriz energética*:
+     _Proyectos de Energía Solar en Colombia_.
     https://www.datos.gov.co/Minas-y-Energ-a/Meta-FNCER-Incorporar-en-la-matriz-energ-tica-nuev/vy9n-w6hc/about_data  
 
     - Datos Abiertos Colombia. (s.f.). *Inventario Nacional de Gases de Efecto Invernadero*.  
@@ -128,19 +140,39 @@ with tabs[0]:
 # 📂 PESTAÑA 2: SUBIR Y VER DATOS
 # -------------------------------
 with tabs[1]:
-    st.header("📂 Visualización de dataset")
+    st.header("📂 Bases de datos")
 
-    archivo = st.file_uploader("Sube tu archivo CSV", type=["csv"])
+   ## Colombia
+    archivo1 = ruta_colombia
 
-    if archivo is not None:
+    if archivo1 is not None:
         try:
-            df = pd.read_csv(archivo, encoding='utf-8')
+            df = pd.read_csv(archivo1, encoding='utf-8')
         except:
-            df = pd.read_csv(archivo, encoding='latin-1')
+            df = pd.read_csv(archivo1, encoding='latin-1')
 
-        st.success("Archivo cargado correctamente ✅")
+        st.subheader("🔍 Vista previa de la base de datos:  _Producción de Energía en Colombia_")
+        st.dataframe(df.head(10))
 
-        st.subheader("🔍 Vista previa de los datos")
+        st.subheader("📊 Información del dataset")
+        st.write("Filas:", df.shape[0])
+        st.write("Columnas:", df.shape[1])
+
+        st.subheader("🧾 Tipos de datos")
+        st.write(df.dtypes)
+   
+   ## Solar
+   # archivo = st.file_uploader("Sube tu archivo CSV", type=["csv"])
+    archivo2 = ruta_solar
+
+    if archivo2 is not None:
+        try:
+            df = pd.read_csv(archivo2, encoding='utf-8')
+        except:
+            df = pd.read_csv(archivo2, encoding='latin-1')
+
+
+        st.subheader("🔍 Vista previa de la base de datos:  _Proyectos de Energía Solar en Colombia_")
         st.dataframe(df.head(10))
 
         st.subheader("📊 Información del dataset")
@@ -155,10 +187,10 @@ with tabs[1]:
 # 📊 PESTAÑA 3: VER RESULTADOS
 # -------------------------------
 with tabs[2]:
-    st.header("✅ Ver resultado")
+    st.header("⚡Producción de Energía")
 
     # Cargar tabla_resumen desde la carpeta Codigo
-    path_tabla = "C:\\Users\\USUARIO\\Documents\\Datos\\Bootcamp\\Bootcamp2026-1\\Codigo\\tabla_resumen.csv"
+    path_tabla = ruta_tabla_resumen
     try:
         tabla_resumen = pd.read_csv(path_tabla, encoding='utf-8')
     except FileNotFoundError:
@@ -176,7 +208,7 @@ with tabs[2]:
 
     st.subheader("⛅ Evolución temporal de energía")
     # Cargar datos_final para gráfica de líneas
-    path_datos = "C:\\Users\\USUARIO\\Documents\\Datos\\Bootcamp\\Bootcamp2026-1\\Codigo\\datos_final.csv"
+    path_datos = ruta_datos_final
     try:
         datos_final = pd.read_csv(path_datos, encoding='utf-8')
     except FileNotFoundError:
@@ -235,7 +267,7 @@ with tabs[2]:
         st.altair_chart(chart, use_container_width=True)
 
     st.markdown("### Gráfico de barras horizontal de energías renovables")
-    df_renovables = pd.read_csv("C:\\Users\\USUARIO\\Documents\\Datos\\Bootcamp\\Bootcamp2026-1\\df_solo_renovables.csv")
+    df_renovables = pd.read_csv(ruta_renovables)
     df_renovables_agrupado = df_renovables.groupby("Product")["Value"].sum().reset_index()
     
     # Mapear nombres a español
@@ -261,7 +293,7 @@ with tabs[2]:
 
     st.markdown("### Evolución temporal de energías renovables")
     # Cargar datos para gráfica de líneas
-    datos_final = pd.read_csv("C:\\Users\\USUARIO\\Documents\\Datos\\Bootcamp\\Bootcamp2026-1\\df_solo_renovables.csv")
+    datos_final = pd.read_csv(ruta_renovables)
     
     if not datos_final.empty and "Time" in datos_final.columns:
         # Convertir Time a datetime
@@ -307,7 +339,7 @@ with tabs[2]:
 
 #Pestaña 4: Mapa de calor
 with tabs[3]:
-    st.header("🔅 Mapas de calor")
+    st.header("🔅 Atlas Solar")
 
     archivo2 = st.file_uploader("Sube tu dataset para graficar", type=["csv"], key="grafico")
 
@@ -331,3 +363,141 @@ with tabs[3]:
         # Detectar columnas numéricas
         numericas = df.select_dtypes(include=np.number).columns.tolist()
 
+# -------------------------------
+# 📊 PESTAÑA 4: Analisis
+# -------------------------------
+with tabs[4]:
+    st.header("📈 Análisis Descriptivo")
+    # --- 1. CONFIGURACIÓN INICIAL Y RUTA DE DATOS ---
+    # Usar barra normal (/) evita errores de lectura de rutas en Python
+    #RUTA_DATOS = "Documentos\\solar.csv" 
+
+    st.set_page_config(page_title="Análisis Energético y de CO2", layout="wide")
+
+    st.title("🍀 Análisis de Energía y Emisiones Evitadas de CO2")
+    st.markdown("""
+    Esta aplicación recrea el análisis de normalidad, dispersión y el modelo de regresión lineal 
+    para los factores de Energía Solar generada y el CO2 desplazado (evitado).
+    """)
+
+    # --- 2. LECTURA DE DATOS ---
+    @st.cache_data
+    def cargar_datos(ruta):
+        if ruta.endswith('.csv'):
+            return pd.read_csv(ruta)
+        else:
+            return pd.read_excel(ruta)
+
+    try:
+        df_clean = cargar_datos(ruta_solar)
+        
+        # --- SECCIÓN 1: HISTOGRAMAS POR APARTE ---
+        st.header("1. Distribución de las Variables")
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.subheader("Histograma: Energía Solar")
+            fig_en, ax_en = plt.subplots()
+            sns.histplot(df_clean['Energía [kWh/año]'], kde=True, color="royalblue", ax=ax_en)
+            ax_en.set_title("Energía [kWh/año]")
+            st.pyplot(fig_en, clear_figure=True)
+            
+            stat, p = shapiro(df_clean['Energía [kWh/año]'].dropna())
+            st.write(f"**P-valor (Shapiro):** {p:.4e}")
+
+        with col2:
+            st.subheader("Histograma: CO2 Evitado")
+            fig_co2, ax_co2 = plt.subplots()
+            sns.histplot(df_clean['Emisiones CO2 [Ton/año]'], kde=True, color="firebrick", ax=ax_co2)
+            ax_co2.set_title("Emisiones CO2 Evitadas [Ton/año]")
+            st.pyplot(fig_co2, clear_figure=True)
+            
+            stat, p = shapiro(df_clean['Emisiones CO2 [Ton/año]'].dropna())
+            st.write(f"**P-valor (Shapiro):** {p:.4e}")
+
+        # --- SECCIÓN 2: DISPERSIÓN Y REGRESIÓN ---
+        st.header("2. Modelo de Regresión Lineal")
+        
+        X = sm.add_constant(df_clean['Energía [kWh/año]'].dropna())
+        y = df_clean['Emisiones CO2 [Ton/año]'].dropna()
+        model = sm.OLS(y, X).fit()
+        
+        fig_reg, ax_reg = plt.subplots(figsize=(10, 5))
+        sns.regplot(x='Energía [kWh/año]', y='Emisiones CO2 [Ton/año]', data=df_clean, 
+                    ax=ax_reg, line_kws={"color": "red"}, scatter_kws={'color': 'royalblue'})
+        ax_reg.set_title("Ajuste Lineal: Energía Solar vs CO2 Evitado")
+        st.pyplot(fig_reg, clear_figure=True)
+
+        # Variables del modelo
+        intercepto = model.params.iloc[0] 
+        pendiente = model.params.iloc[1]  
+        r2 = model.rsquared
+
+        st.markdown("---")
+        st.header("📊 Resultados del Modelo Descriptivo")
+
+        # 1. Tarjeta principal resaltada con la ecuación actualizada
+        st.success(f"**Ecuación Matemática:** CO₂ Evitado = ({pendiente:.5f} × Energía) + {intercepto:.4f}")
+
+        # 2. Métricas Clave
+        col1, col2, col3 = st.columns(3)
+        col1.metric(label="Precisión del Modelo (R²)", value=f"{r2 * 100:.1f}%")
+        col2.metric(label="Factor de Desplazamiento", value=f"{pendiente:.4f}", delta="Ton CO₂ / kWh", delta_color="off")
+        
+        p_valor_energia = model.pvalues.iloc[1]
+        es_significativo = "Sí" if p_valor_energia < 0.05 else "No"
+        col3.metric(label="Estadísticamente Significativo", value=es_significativo)
+
+        # 3. Tabla de coeficientes
+        st.markdown("#### 🔍 Detalle de los Parámetros")
+        
+        tabla_coeficientes = pd.DataFrame({
+            "Variable": ["Constante (Base)", "Energía [kWh/año]"],
+            "Valor (Coeficiente)": [intercepto, pendiente],
+            "P-Valor": [model.pvalues.iloc[0], model.pvalues.iloc[1]],
+            "Interpretación": [
+                "Ahorro base (teórico)", 
+                "Aumento del ahorro de CO₂ por cada 1 kWh extra"
+            ]
+        })
+        
+        st.dataframe(
+            tabla_coeficientes.style.format({
+                "Valor (Coeficiente)": "{:.5f}",
+                "P-Valor": "{:.5f}"
+            }),
+            use_container_width=True,
+            hide_index=True
+        )
+
+        # 4. Insight de negocio
+        if r2 > 0.99:
+            st.info("💡 **Insight Analítico:** Un R² de 1.000 indica una relación determinista. Esto confirma que los datos de Emisiones representan un cálculo teórico donde se aplica un factor de desplazamiento de red al consumo de energía, más que mediciones físicas directas de sensores.")
+
+        # --- SECCIÓN 3: IMPACTO AMBIENTAL ---
+        st.header("🌱 Impacto Ambiental: Resumen del Proyecto")
+
+        arboles_equivalentes = (pendiente * df_clean['Energía [kWh/año]'].sum()) / 0.02
+
+        col_kpi1, col_kpi2, col_kpi3 = st.columns(3)
+
+        with col_kpi1:
+            st.metric("Factor de Ahorro Red", f"{pendiente:.4f} Ton/kWh", help="CO2 evitado de la matriz fósil por cada kWh solar")
+
+        with col_kpi2:
+            total_ahorro = df_clean['Emisiones CO2 [Ton/año]'].sum()
+            st.metric("Ahorro Total de los Proyectos", f"{total_ahorro:,.2f} Ton", delta="CO₂ Evitadas", delta_color="normal", help="Suma total de toneladas de CO₂ mitigadas de todos los proyectos. Representa el impacto ambiental acumulado de toda la energía solar generada en la muestra.")
+
+        with col_kpi3:
+            st.metric("Equivalencia en Bosque", f"{int(arboles_equivalentes):,} Árboles", help="Árboles necesarios para absorber el mismo CO2 en un año")
+
+        st.success(f"""
+        💡 **Análisis Técnico:** El modelo confirma que por cada **1 kWh** generado por el sistema solar, 
+        se mitigan **{pendiente:.5f} toneladas de CO₂** (equivalente a **{pendiente*1000:.2f} kg de CO₂**) 
+        que de otro modo habrían sido producidas por fuentes tradicionales en la red eléctrica.
+        """)
+
+    except FileNotFoundError:
+        st.error(f"❌ No se encontró el archivo en la ruta: `{ruta_solar}`. Por favor verifica que la ruta relativa sea correcta respecto a donde estás ejecutando Streamlit.")
+    except KeyError as e:
+        st.error(f"❌ El archivo se cargó, pero no se encontró la columna {e}. Verifica que los nombres coincidan exactamente con 'Energía [kWh/año]' y 'Emisiones CO2 [Ton/año]'.")
