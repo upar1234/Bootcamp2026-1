@@ -190,6 +190,12 @@ with tabs[1]:
             "fuente_full": "Producción de Energía en Colombia",
             "color": "#007BFF", # Azul
             "variables": {
+                "Country": "Pais.",
+                "Balance": "Cubrimiento de la oferta de electricidad en un país.",
+                "Time": "Fecha de la toma de la medida.",
+                "Product": "Tipo de energía.",
+                "Value": "Valor de la energía.",
+                "Unit": "Unidad en la que se mide la energía GW/H.",
                 "Producción Neta (NETPROD)": "Electricidad real que sale de las centrales hacia la red, neta de consumos propios.",
                 "Importaciones / Exportaciones": "Flujo de energía transfronterizo. El tránsito se reporta en ambas categorías.",
                 "Bombeo (EPUMPST)": "Energía usada para mover agua a embalses superiores (almacenamiento mecánico).",
@@ -214,9 +220,13 @@ with tabs[1]:
             "fuente_full": "Proyectos de Energía Solar en Colombia",
             "color": "#28a745", # Verde
             "variables": {
-                "Tipo de Tecnología": "Identifica la fuente primaria (Solar, Eólica, Biomasa). Es el pilar de la descarbonización.",
+                "Proyecto": "Identificador de cada uno de los proyectos que hacen parte de las metas en cada corte reportado",
+                "Tipo": "Identifica la fuente primaria (Solar, Eólica, Biomasa). Es el pilar de la descarbonización.",
                 "Capacidad [MW]": "Potencia neta real entregable. Es la medida de magnitud del proyecto ante el SIN.",
-                "Departamento / Municipio": "Ubicación geográfica. Incluye códigos DIVIPOLA para trazabilidad estadística nacional.",
+                "Departamento": "Nombre del departamento del proyecto referenciado",
+                "Municipio": "Nombre del municipio del proyecto referenciado, para proyectos grandes se toma el municipio principal",
+                "Código Departamento": "Código del Departamento de acuerdo a DIVIPOLA",
+                "Código Municipio": "Código del Municipio de acuerdo a DIVIPOLA",
                 "Fecha estimada FPO": "Fecha de Puesta en Operación. Hito donde el proyecto inicia su vida útil comercial.",
                 "Energía [kWh/día]": "Estimación de generación diaria usando factores de eficiencia (0.2 solar / 0.4 otros).",
                 "Usuarios": "Impacto social: familias beneficiadas según consumo de subsistencia (173 kWh/mes).",
