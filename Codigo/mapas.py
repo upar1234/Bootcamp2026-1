@@ -24,7 +24,6 @@ def get_data():
     df = pd.read_csv(ruta)
     df['Departamento'] = df['Departamento'].astype(str).str.upper().str.strip()
     
-    # Mapeo corregido para coincidir con el GeoJSON local
     mapeo = {
         'BOGOTÁ': 'SANTAFE DE BOGOTA D.C',
         'BOGOTA': 'SANTAFE DE BOGOTA D.C',
@@ -51,7 +50,7 @@ df_solar = get_data()
 lista_deptos = ["TODOS"] + sorted(df_solar['Departamento'].unique().tolist())
 depto_seleccionado = st.selectbox("Selecciona un Departamento", lista_deptos)
 
-# Filtrado de datos
+# # Filtrado de datos
 if depto_seleccionado != "TODOS":
     df_filtrado = df_solar[df_solar['Departamento'] == depto_seleccionado]
 else:
@@ -127,13 +126,36 @@ fig2.update_layout(height=650, margin={"r":0,"t":40,"l":0,"b":0}, showlegend=Fal
 
 st.plotly_chart(fig2, use_container_width=True)
 
- #métricas
-st.divider()
-col1, col2 = st.columns(2)
-with col1:
-    st.metric(f"Total Energía {depto_seleccionado}", f"{df_filtrado['Energía [kWh/año]'].sum():,.0f} kWh/año")
-with col2:
-    st.metric("Capacidad Instalada", f"{df_filtrado['Capacidad'].sum():,.2f} MW")
 
-if st.checkbox("Mostrar tabla de datos"):
-    st.dataframe(df_filtrado, use_container_width=True)
+st.title("Mapa emisiones de CO2 evitadas")
+
+fig3 = px.choropleth(
+    df_solar,
+    geojson=colombia_geojson,
+    locations="Departamento",
+    featureidkey="properties.NOMBRE_DPT",
+    color="Emisiones CO2 [Ton/año]", 
+    color_continuous_scale="Reds",
+    hover_name="Departamento",
+    hover_data={
+        "Departamento": False,
+        "Emisiones CO2 [Ton/año]": ":,.2f"
+    },
+    labels={'Emisiones CO2 [Ton/año]': 'CO2 (Ton/año)'},
+)
+
+fig3.update_geos(fitbounds="locations", visible=False, showocean=True, oceancolor="LightBlue", showcountries=True)
+fig3.update_layout(height=600, margin={"r":0,"t":40,"l":0,"b":0})
+st.plotly_chart(fig3, use_container_width=True)
+
+
+#  #métricas
+# st.divider()
+# col1, col2 = st.columns(2)
+# with col1:
+#     st.metric(f"Total Energía {depto_seleccionado}", f"{df_filtrado['Energía [kWh/año]'].sum():,.0f} kWh/año")
+# with col2:
+#     st.metric("Capacidad Instalada", f"{df_filtrado['Capacidad'].sum():,.2f} MW")
+
+# if st.checkbox("Mostrar tabla de datos"):
+#     st.dataframe(df_filtrado, use_container_width=True)
