@@ -325,7 +325,7 @@ with tabs[2]:
     if not tabla_resumen.empty and "Product" in tabla_resumen.columns:
         tabla_resumen = tabla_resumen[tabla_resumen["Product"].isin(["Renovable", "No Renovable"])]
 
-    st.subheader("♻️ Renovables Vs Fósiles")
+    st.subheader("♻️ Renovables Vs No Renovable")
     st.dataframe(tabla_resumen)
 
     st.subheader("⛅ Evolución temporal de energía")
@@ -548,7 +548,7 @@ with tabs[2]:
         
         st.altair_chart(line_chart, use_container_width=True)
 
-        st.markdown("### Evolución temporal sin Hydro")
+        st.markdown("### Evolución temporal sin Hidroeléctrica")
         df_lineas_sin_hydro = df_lineas[df_lineas["Product"] != "Hidroelectrica"]
 
         line_chart_sin_hydro = alt.Chart(df_lineas_sin_hydro).mark_line(point=True).encode(
