@@ -7,6 +7,7 @@ import altair as alt
 import statsmodels.api as sm
 from scipy.stats import shapiro
 import os
+import altair as alt
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ruta_colombia=os.path.join(BASE_DIR,"..", "Documentos", "colombia.csv")
@@ -296,7 +297,7 @@ with tabs[1]:
                 st.markdown("<hr style='margin:0; border:0.1px solid #f9f9f9'>", unsafe_allow_html=True)
 
 # -------------------------------
-# 📊 PESTAÑA 3: VER RESULTADOS
+# 📊 PESTAÑA 3: Producción de Energía
 # -------------------------------
 with tabs[2]:
     st.header("⚡Producción de Energía")
@@ -355,28 +356,79 @@ with tabs[2]:
     cols = st.columns([3,2])
     
     with cols[1].container(border=True, height="stretch"):
+    
+        # 1. Crear las columnas para el texto y la posición central vertical
+        tabla_resumen["Label"] = tabla_resumen["Value"].map("{:,.1f} GWh".format)
+        tabla_resumen["ValueMid"] = tabla_resumen["Value"] / 2
 
-        st.altair_chart(
-        alt.Chart(tabla_resumen)
-        .mark_bar()
-        .encode(
-            alt.X("Product:N").title("Tipo de Energía"),
+        # 2. Definir la base del gráfico (El eje X se comparte)
+        base = alt.Chart(tabla_resumen).encode(
+            alt.X("Product:N").title("Tipo de Energía")
+        )
+
+        # 3. Capa de las barras (Usan el valor total en Y)
+        bars = base.mark_bar().encode(
             alt.Y("Value:Q").title("Valor (GWh)"),
-            alt.Color("Product:N", legend=alt.Legend(orient="bottom")),
+            alt.Color("Product:N", legend=alt.Legend(orient="bottom", title=None)),
             tooltip=["Product:N", "Value:Q", "Unit:N"]
         )
-        .properties(height=300)
-    )
 
-    with cols[0].container(border=True, height="stretch"):
+        # 4. Capa del texto centrado (Usan la mitad del valor en Y)
+        text = base.mark_text(
+            align='center',
+            baseline='middle',
+            size=14,
+            fontWeight="bold",
+            color="white"
+        ).encode(
+            alt.Y("ValueMid:Q"), # Posición en la mitad de la barra vertical
+            text=alt.Text("Label:N")
+        )
 
-        chart = alt.Chart(tabla_resumen).mark_arc().encode(
-            theta=alt.Theta("Value:Q"),
-            color=alt.Color("Product:N", legend=alt.Legend(orient="bottom")),
-            tooltip=["Product:N", "Value:Q"]
+        # 5. Combinar capas y renderizar
+        chart = alt.layer(bars, text).properties(
+            height=300, padding={"top": 30, "left": 60, "right": 60, "bottom": 10}
+        ).configure_view(
+            strokeWidth=0
         )
 
         st.altair_chart(chart, use_container_width=True)
+
+    with cols[0].container(border=True, height="stretch"):
+    # 1. Aseguramos el cálculo del porcentaje
+        tabla_resumen["Porcentaje"] = (tabla_resumen["Value"] / tabla_resumen["Value"].sum()) * 100
+        
+        # Base compartida para que el texto y el arco coincidan perfectamente
+        base = alt.Chart(tabla_resumen).encode(
+            theta=alt.Theta("Value:Q", stack=True)
+        )
+
+        # El arco (La torta)
+        chart = base.mark_arc(outerRadius=120).encode(
+            color=alt.Color("Product:N", legend=alt.Legend(orient="bottom")),
+            tooltip=["Product:N", "Value:Q", alt.Tooltip("Porcentaje:Q", format=".1f")]
+        )
+
+        # El texto (Corregido)
+        text = base.mark_text(
+            radius=85,          # Radio donde se ubica el texto
+            size=18, 
+            fontWeight="bold", 
+            fill="white"
+        ).encode(
+            # El formato '.1f' es para un decimal, y agregamos el '%' literal al final
+            text=alt.Text("Porcentaje:Q", format=".1f") 
+        )
+
+        tabla_resumen["Label"] = tabla_resumen["Porcentaje"].map("{:.1f}%".format)
+        
+        # Versión final usando la columna 'Label' para evitar errores de formato
+        text = base.mark_text(radius=80, size=18, fontWeight="bold", fill="white").encode(
+            text=alt.Text("Label:N") # N de Nominal/Texto
+        )
+
+        st.altair_chart(alt.layer(chart, text).properties(height=300, padding={"top": 30, "left": 10, "right": 10, "bottom": 10}), use_container_width=True)
+
 
     st.markdown("### Gráfico de barras horizontal de energías renovables")
     df_renovables = pd.read_csv(ruta_renovables)
@@ -392,16 +444,68 @@ with tabs[2]:
         "Wind": "Eólico"
     }
     df_renovables_agrupado["Product"] = df_renovables_agrupado["Product"].map(mapeo_productos)
-    
-    chart = alt.Chart(df_renovables_agrupado).mark_bar().encode(
-        alt.X("Value:Q").title("Valor (GWh)"),
-        alt.Y("Product:N").title("Tipo de Energía"),
-        alt.Color("Product:N", scale=alt.Scale(scheme="category10"), legend=alt.Legend(orient="bottom")),
-        tooltip=["Product:N", "Value:Q"]
-    ).properties(height=400).configure_axis(grid=True).configure_view(strokeWidth=0)
-    
-    st.altair_chart(chart, use_container_width=True)
+    # 1. Ordenamos el DataFrame explícitamente de mayor a menor
+    df_renovables_agrupado = df_renovables_agrupado.sort_values(by="Value", ascending=False)
+    # 2. Guardamos ese orden exacto en una lista
+    orden_categorias = df_renovables_agrupado["Product"].tolist()
+    # --------------------------
+    cutoff = 150000  # Límite para decidir si va adentro o afuera
 
+    # Crear la columna de formato de texto (Única columna extra que necesitamos)
+    df_renovables_agrupado["Label"] = df_renovables_agrupado["Value"].map("{:,.1f} GWh".format)
+
+    # 2. Definir la base del gráfico compartida
+    base = alt.Chart(df_renovables_agrupado).encode(
+        alt.Y("Product:N", sort=alt.EncodingSortField(field="Value", order="descending")).title("Tipo de Energía")
+    )
+
+    # 3. Capa de las barras
+    bars = base.mark_bar().encode(
+        alt.X("Value:Q").title("Valor (GWh)"),
+        alt.Color("Product:N", scale=alt.Scale(scheme="category10"), legend=alt.Legend(orient="bottom", title=None)),
+        tooltip=["Product:N", "Value:Q"]
+    )
+
+    # 4. Capa de texto para barras LARGAS (Texto por DENTRO)
+    text_inside = base.mark_text(
+        align='right',     # Justificado a la derecha
+        baseline='middle',
+        dx=-5,             # Empujado 5px hacia la izquierda (adentro de la barra)
+        size=14,
+        fontWeight="bold",
+        color="white"      # Blanco para que contraste con el color de la barra
+    ).encode(
+        alt.X("Value:Q"),
+        text=alt.Text("Label:N")
+    ).transform_filter(
+        alt.datum.Value > cutoff # Filtramos: Solo se dibuja si el valor es mayor al límite
+    )
+
+    # 5. Capa de texto para barras CORTAS (Texto por FUERA)
+    text_outside = base.mark_text(
+        align='left',      # Justificado a la izquierda
+        baseline='middle',
+        dx=5,              # Empujado 5px hacia la derecha (afuera de la barra)
+        size=14,
+        fontWeight="bold",
+        color="#333333"    # Gris oscuro/Negro para que contraste con el fondo blanco de la pantalla
+    ).encode(
+        alt.X("Value:Q"),
+        text=alt.Text("Label:N")
+    ).transform_filter(
+        alt.datum.Value <= cutoff # Filtramos: Solo se dibuja si el valor es menor o igual al límite
+    )
+
+    # 6. Combinar todas las capas (Barras + Texto Adentro + Texto Afuera)
+    chart_final = alt.layer(bars, text_inside, text_outside).properties(
+        height=400
+    ).configure_axis(
+        grid=True
+    ).configure_view(
+        strokeWidth=0
+    )
+
+    st.altair_chart(chart_final, use_container_width=True)
 
     st.markdown("### Evolución temporal de energías renovables")
     # Cargar datos para gráfica de líneas
@@ -476,7 +580,7 @@ with tabs[3]:
         numericas = df.select_dtypes(include=np.number).columns.tolist()
 
 # -------------------------------
-# 📊 PESTAÑA 4: Analisis
+# 📊 PESTAÑA 5: Análisis Descriptivo
 # -------------------------------
 with tabs[4]:
     st.header("📈 Análisis Descriptivo")
@@ -486,7 +590,7 @@ with tabs[4]:
 
     st.set_page_config(page_title="Análisis Energético y de CO2", layout="wide")
 
-    st.title("🍀 Análisis de Energía y Emisiones Evitadas de CO2")
+    st.subheader("🍀 Análisis de Energía y Emisiones Evitadas de CO2")
     st.markdown("""
     Esta aplicación recrea el análisis de normalidad, dispersión y el modelo de regresión lineal 
     para los factores de Energía Solar generada y el CO2 desplazado (evitado).
