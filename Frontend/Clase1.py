@@ -155,12 +155,14 @@ with tabs[1]:
         st.subheader("🔍 Vista previa de la base de datos:  _Producción de Energía en Colombia_")
         st.dataframe(df.head(10))
 
-        st.subheader("📊 Información del dataset")
-        st.write("Filas:", df.shape[0])
-        st.write("Columnas:", df.shape[1])
-
-        st.subheader("🧾 Tipos de datos")
-        st.write(df.dtypes)
+        cols = st.columns([3,3])
+        with cols[1].container(border=True, height="stretch"):
+            st.subheader("📊 Información del dataset")
+            st.write("Filas:", df.shape[0])
+            st.write("Columnas:", df.shape[1])
+        with cols[0].container(border=True, height="stretch"):
+            st.subheader("🧾 Tipos de datos")
+            st.write(df.dtypes)
    
    ## Solar
    # archivo = st.file_uploader("Sube tu archivo CSV", type=["csv"])
@@ -175,13 +177,15 @@ with tabs[1]:
 
         st.subheader("🔍 Vista previa de la base de datos:  _Proyectos de Energía Solar en Colombia_")
         st.dataframe(df.head(10))
+        cols = st.columns([3,3])
+        with cols[1].container(border=True, height="stretch"):
+            st.subheader("📊 Información del dataset")
+            st.write("Filas:", df.shape[0])
+            st.write("Columnas:", df.shape[1])
 
-        st.subheader("📊 Información del dataset")
-        st.write("Filas:", df.shape[0])
-        st.write("Columnas:", df.shape[1])
-
-        st.subheader("🧾 Tipos de datos")
-        st.write(df.dtypes)
+        with cols[0].container(border=True, height="stretch"):
+            st.subheader("🧾 Tipos de datos")
+            st.write(df.dtypes)
 
         ##Dicionario de variables
         # --- ESTRUCTURA DE DATOS CON FUENTES ASIGNADAS ---
