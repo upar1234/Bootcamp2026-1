@@ -848,3 +848,16 @@ with tabs[4]:
         st.error(f"❌ No se encontró el archivo en la ruta: `{ruta_solar}`. Por favor verifica que la ruta relativa sea correcta respecto a donde estás ejecutando Streamlit.")
     except KeyError as e:
         st.error(f"❌ El archivo se cargó, pero no se encontró la columna {e}. Verifica que los nombres coincidan exactamente con 'Energía [kWh/año]' y 'Emisiones CO2 [Ton/año]'.")
+
+# Línea divisoria
+st.divider()
+
+# Footer sencillo
+st.markdown(
+    """
+    <div style="text-align: center;">
+        <p>© 2026 - Todos los derechos reservados</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
