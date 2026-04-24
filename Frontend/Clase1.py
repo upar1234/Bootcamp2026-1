@@ -20,6 +20,18 @@ ruta_datos_final=os.path.join(BASE_DIR,"..","Codigo", "datos_final.csv")
 
 # Configuración de la página
 st.set_page_config(layout="centered", page_title="TalentoTech", page_icon=":bar_chart:")
+# Ajusta el padding lateral de toda la aplicación
+st.markdown("""
+<style>
+    .main, .block-container {
+        padding-left: 14rem;
+        padding-right: 14rem;
+        max-width: 1400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 st.title("📊 Análisis de datos - Transición energética")
 
